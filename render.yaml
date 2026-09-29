@@ -1,0 +1,35 @@
+# Render Blueprint for the Next.js app and its PostgreSQL database.
+# Supply the prompted secrets in Render; never commit production credentials.
+services:
+  - type: web
+    name: mumbai-girls-app
+    runtime: docker
+    region: singapore
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/profiles
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: APP_ORIGIN
+        value: https://mumbaigirlescort.in
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mumbai-girls-db
+          property: connectionString
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_SESSION_SECRET
+        generateValue: true
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+
+databases:
+  - name: mumbai-girls-db
+    region: singapore
+    databaseName: mumbai_directory
+    user: mumbai_directory_user
+    postgresMajorVersion: "16"
