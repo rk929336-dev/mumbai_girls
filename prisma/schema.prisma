@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InquiryStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Profile {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  name           String
+  age            Int
+  city           String   @default("Mumbai")
+  hub            String
+  categories     String[]
+  hourlyRate     Int
+  dailyRate      Int?
+  whatsappNumber String?
+  galleryUrls    String[]
+  verified       Boolean  @default(false)
+  available      Boolean  @default(true)
+  active         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  inquiries      Inquiry[]
+
+  @@index([active, hub])
+  @@index([active, hourlyRate])
+}
+
+model Inquiry {
+  id                String        @id @default(cuid())
+  profileId         String
+  clientName        String
+  clientEmail       String
+  clientPhone       String
+  preferredAt       DateTime
+  selectedLocation  String
+  message           String?       @db.VarChar(1000)
+  status            InquiryStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  profile           Profile       @relation(fields: [profileId], references: [id], onDelete: Restrict)
+
+  @@index([profileId, createdAt])
+  @@index([status, createdAt])
+}
+
+model SiteSettings {
+  id           String   @id @default("main")
+  heroImageUrl String?
+  heroImageAlt String   @default("Mumbai profile directory preview")
+  updatedAt    DateTime @updatedAt
+}
